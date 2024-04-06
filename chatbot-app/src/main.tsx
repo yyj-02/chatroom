@@ -7,6 +7,8 @@ import ErrorPage from "./pages/ErrorPage.tsx";
 import SignUp from "./pages/SignUp.tsx";
 import Login from "./pages/Login.tsx";
 import Home from "./pages/Home.tsx";
+import Rooms from "./pages/Rooms.tsx";
+import Chatroom from "./pages/Chatroom.tsx";
 
 const router = createBrowserRouter([
   {
@@ -21,6 +23,14 @@ const router = createBrowserRouter([
   {
     path: "/login",
     element: <Login />,
+  },
+  {
+    path: "/rooms",
+    element: <Rooms />,
+  },
+  {
+    path: "/rooms/:id",
+    element: <Chatroom />,
   },
 ]);
 
