@@ -2,7 +2,9 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Chat, Chats } from "@/model/chats";
 import { useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
+import { buttonVariants } from "@/components/ui/button";
 
 const Chatroom = () => {
   const { id } = useParams();
@@ -53,22 +55,31 @@ const Chatroom = () => {
 
   return (
     <div>
-      <div className="w-full max-w-5xl p-8 mx-auto h-full">
-        <div className="flex justify-between">
-          <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl ">
-            Chatroom {id}: Name
-          </h1>
-          <div className="flex items-center space-x-2">
-            <span>🇸🇬</span>
-            <Switch
-              id="british-mode"
-              checked={britishMode}
-              onCheckedChange={setBritishMode}
-            />
-            <Label htmlFor="british-mode">🇬🇧</Label>
+      <div className="flex flex-col xl:flex-row xl:items-stretch">
+        <div className="mx-auto flex w-full max-w-5xl items-center pl-3 pt-4 xl:mx-0 xl:w-auto xl:flex-grow xl:basis-28 xl:justify-end xl:p-0">
+          <Link to="/rooms" className={buttonVariants({ variant: "link" })}>
+            <ArrowLeft className="mr-1 inline-block" /> back
+          </Link>
+        </div>
+        <div className="mx-auto w-full max-w-5xl p-8">
+          <div className="flex justify-between">
+            <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl ">
+              Chatroom {id}: Name
+            </h1>
+            <div className="flex items-center space-x-2">
+              <span>🇸🇬</span>
+              <Switch
+                id="british-mode"
+                checked={britishMode}
+                onCheckedChange={setBritishMode}
+              />
+              <Label htmlFor="british-mode">🇬🇧</Label>
+            </div>
           </div>
         </div>
+        <div className="hidden flex-shrink flex-grow basis-28 xl:block" />
       </div>
+      <div className="mx-auto h-full w-full max-w-5xl p-8"></div>
     </div>
   );
 };
