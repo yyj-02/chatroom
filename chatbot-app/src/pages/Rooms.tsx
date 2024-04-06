@@ -42,7 +42,7 @@ const Rooms = () => {
   };
 
   return (
-    <div className="w-full max-w-5xl p-8 mx-auto h-full">
+    <div className="w-full max-w-5xl p-8 mx-auto min-h-full">
       <div className="flex justify-between">
         <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl text-center">
           Rooms
