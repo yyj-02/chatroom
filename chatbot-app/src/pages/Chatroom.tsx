@@ -3,14 +3,18 @@ import { Switch } from "@/components/ui/switch";
 import { Chat, Chats } from "@/model/chats";
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
-import { buttonVariants } from "@/components/ui/button";
+import { ArrowLeft, Send } from "lucide-react";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Input } from "@/components/ui/input";
 
 const Chatroom = () => {
   const { id } = useParams();
   const userId = 1;
 
   const [britishMode, setBritishMode] = useState(true);
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
   const [chats, setChats] = useState<Chats>([
     {
       id: 1,
@@ -39,8 +43,19 @@ const Chatroom = () => {
   };
 
   // retrieve chat, redirects to room if chat is not found
-  // handle send
-  const handleMessageSend = (message: string) => {
+  const handleOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setMessage(event.currentTarget.value);
+  };
+
+  const handleMessageSend = () => {
+    setLoading(true);
+
+    if (!message || message.trim() === "") {
+      setMessage("");
+      setLoading(false);
+      return;
+    }
+
     addChat({
       id: chats.length + 1,
       originalMessage: message,
@@ -51,10 +66,20 @@ const Chatroom = () => {
         name: "User 1",
       },
     });
+    setLoading(false);
+    setMessage("");
+  };
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    // enter and no shift enter
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
+      handleMessageSend();
+    }
   };
 
   return (
-    <div>
+    <div className="flex h-full flex-col">
       <div className="flex flex-col xl:flex-row xl:items-stretch">
         <div className="mx-auto flex w-full max-w-5xl items-center pl-3 pt-4 xl:mx-0 xl:w-auto xl:flex-grow xl:basis-28 xl:justify-end xl:p-0">
           <Link to="/rooms" className={buttonVariants({ variant: "link" })}>
@@ -79,7 +104,21 @@ const Chatroom = () => {
         </div>
         <div className="hidden flex-shrink flex-grow basis-28 xl:block" />
       </div>
-      <div className="mx-auto h-full w-full max-w-5xl p-8"></div>
+      <div className="mx-auto flex w-full max-w-5xl grow flex-col gap-2 px-8 pb-8">
+        <ScrollArea className="w-full grow rounded-md border bg-white/5 p-4"></ScrollArea>
+        <div className="flex gap-2">
+          <Input
+            placeholder="Type a message"
+            onKeyDown={handleKeyDown}
+            value={message}
+            onChange={handleOnChange}
+            disabled={loading}
+          />
+          <Button onClick={handleMessageSend} disabled={loading}>
+            <Send />
+          </Button>
+        </div>
+      </div>
     </div>
   );
 };
