@@ -6,6 +6,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
+import CreateRoomDialog from "@/components/create-room-dialog";
 
 const Rooms = () => {
   const navigate = useNavigate();
@@ -36,20 +37,10 @@ const Rooms = () => {
       link: "/rooms/3",
     },
   ]);
-  // Add request to get rooms
-  // Add create room function
-  const createRoom = () => {
-    console.log("Create room");
-    setRooms([
-      ...rooms,
-      {
-        id: rooms.length + 1,
-        name: `Room ${rooms.length + 1}`,
-        description: `Room ${rooms.length + 1} description`,
-        link: `/rooms/${rooms.length + 1}`,
-      },
-    ]);
-  };
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const showDialog = () => setIsDialogOpen(true);
+  // get rooms
 
   return (
     <div className="flex h-full flex-col">
@@ -64,7 +55,7 @@ const Rooms = () => {
             <h1 className="scroll-m-20 text-center text-4xl font-extrabold tracking-tight lg:text-5xl">
               Rooms
             </h1>
-            <Button onClick={createRoom}>+ Create Room</Button>
+            <CreateRoomDialog />
           </div>
         </div>
         <div className="hidden flex-shrink flex-grow basis-28 xl:block" />
