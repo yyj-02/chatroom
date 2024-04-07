@@ -9,10 +9,11 @@ import {
 } from "@/components/ui/dialog";
 import { useToast } from "./ui/use-toast";
 import { useState } from "react";
-import { Button, buttonVariants } from "./ui/button";
+import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
+import { addRoom } from "@/lib/rooms";
 
 const CreateRoomDialog = () => {
   const { toast } = useToast();
@@ -27,7 +28,7 @@ const CreateRoomDialog = () => {
   const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) =>
     setDescription(e.target.value);
 
-  const createRoom = (e: React.FormEvent<HTMLFormElement>) => {
+  const createRoom = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     if (name.trim() === "") {
@@ -40,12 +41,23 @@ const CreateRoomDialog = () => {
       return;
     }
 
-    console.log("Create room");
-
-    setIsOpen(false);
-    setName("");
-    setDescription("");
-    setLoading(false);
+    try {
+      await addRoom(name, description);
+      toast({
+        title: `Room ${name} created!`,
+      });
+      setIsOpen(false);
+      setName("");
+      setDescription("");
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Oh no! Something went wrong.",
+        description: error.message,
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

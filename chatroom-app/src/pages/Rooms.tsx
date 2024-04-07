@@ -1,12 +1,13 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import RoomCard from "@/components/room-card";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { Room } from "@/model/room";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import CreateRoomDialog from "@/components/create-room-dialog";
+import { onRoomsChange } from "@/lib/rooms";
 
 const Rooms = () => {
   const navigate = useNavigate();
@@ -17,30 +18,13 @@ const Rooms = () => {
     }
   });
 
-  const [rooms, setRooms] = useState<Room[]>([
-    {
-      id: 1,
-      name: "Room 1",
-      description: "Room 1 description",
-      link: "/rooms/1",
-    },
-    {
-      id: 2,
-      name: "Room 2",
-      description: "Room 2 description",
-      link: "/rooms/2",
-    },
-    {
-      id: 3,
-      name: "Room 3",
-      description: "Room 3 description",
-      link: "/rooms/3",
-    },
-  ]);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [rooms, setRooms] = useState<Room[]>([]);
 
-  const showDialog = () => setIsDialogOpen(true);
-  // get rooms
+  useEffect(() => {
+    const unsubscribe = onRoomsChange(setRooms);
+
+    return () => unsubscribe();
+  }, []);
 
   return (
     <div className="flex h-full flex-col">

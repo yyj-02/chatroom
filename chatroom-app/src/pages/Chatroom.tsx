@@ -1,7 +1,7 @@
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Chat, Chats } from "@/model/chats";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
@@ -9,6 +9,8 @@ import MessageInput from "@/components/message-input";
 import MessageList from "@/components/message-list";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/lib/firebase";
+import { getRoomName } from "@/lib/rooms";
+import { useToast } from "@/components/ui/use-toast";
 
 const Chatroom = () => {
   const navigate = useNavigate();
@@ -19,7 +21,34 @@ const Chatroom = () => {
     }
   });
 
-  const { id } = useParams();
+  const { toast } = useToast();
+
+  const { roomId } = useParams();
+
+  const [roomName, setRoomName] = useState("");
+  useEffect(() => {
+    if (roomId === undefined) {
+      toast({
+        variant: "destructive",
+        title: "Oh no! Something went wrong.",
+        description: "Room not found.",
+      });
+      navigate("/rooms");
+      return;
+    }
+
+    getRoomName(roomId)
+      .then(setRoomName)
+      .catch(() => {
+        toast({
+          variant: "destructive",
+          title: "Oh no! Something went wrong.",
+          description: "Room not found.",
+        });
+        navigate("/rooms");
+      });
+  }, []);
+
   const userId = 1;
 
   const [britishMode, setBritishMode] = useState(false);
@@ -85,7 +114,7 @@ const Chatroom = () => {
         <div className="mx-auto w-full max-w-5xl p-8">
           <div className="flex justify-between">
             <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl ">
-              Chatroom {id}: Name
+              {roomName}
             </h1>
             <div className="flex items-center space-x-2">
               <span>🇸🇬</span>
