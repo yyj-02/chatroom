@@ -2,44 +2,83 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { useToast } from "@/components/ui/use-toast";
+import { auth } from "@/lib/firebase";
 
 const SignUp = () => {
-  const [username, setUsername] = useState("");
+  const { toast } = useToast();
+  const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleSignUp = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
+    createUserWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        // Signed up
+        const user = userCredential.user;
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        console.log(errorCode, errorMessage);
+        toast({
+          variant: "destructive",
+          title: "Uh oh! Something went wrong.",
+          description: errorMessage,
+        });
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
 
   return (
-    <div className="w-full max-w-5xl p-8 mx-auto min-h-full flex flex-col items-center justify-center">
-      <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl text-center">
+    <div className="mx-auto flex min-h-full w-full max-w-5xl flex-col items-center justify-center p-8">
+      <h1 className="scroll-m-20 text-center text-4xl font-extrabold tracking-tight lg:text-5xl">
         Welcome to Singlish Chat 🇸🇬
       </h1>
-      <form className="flex justify-center mt-8 w-full max-w-60">
-        <div className="w-full flex flex-col gap-2">
-          <Input
-            placeholder="Username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
+      <form
+        className="mt-8 flex w-full max-w-60 justify-center"
+        onSubmit={handleSignUp}
+      >
+        <div className="flex w-full flex-col gap-2">
           <Input
             placeholder="Name"
             value={name}
             onChange={(e) => setName(e.target.value)}
+            disabled={loading}
+          />
+          <Input
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            disabled={loading}
           />
           <Input
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             type="password"
+            disabled={loading}
           />
-          <div className="flex justify-center mt-2">
-            <Button variant="default" type="submit" className="w-full max-w-28">
+          <div className="mt-2 flex justify-center">
+            <Button
+              variant="default"
+              type="submit"
+              className="w-full max-w-28"
+              disabled={loading}
+            >
               Sign up
             </Button>
           </div>
         </div>
       </form>
       <div className="mt-8">
-        <p className="text-sm font-medium leading-none text-center">
+        <p className="text-center text-sm font-medium leading-none">
           Already have an account?{" "}
           <Link
             to="/login"

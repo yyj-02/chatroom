@@ -9,6 +9,7 @@ import Login from "./pages/Login.tsx";
 import Home from "./pages/Home.tsx";
 import Rooms from "./pages/Rooms.tsx";
 import Chatroom from "./pages/Chatroom.tsx";
+import { Toaster } from "@/components/ui/toaster";
 
 const router = createBrowserRouter([
   {
@@ -43,6 +44,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
       disableTransitionOnChange
     >
       <RouterProvider router={router} />
+      <Toaster />
     </ThemeProvider>
-  </React.StrictMode>
+  </React.StrictMode>,
 );
