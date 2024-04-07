@@ -1,39 +1,71 @@
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { Link } from "react-router-dom";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { Link, useNavigate } from "react-router-dom";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { useToast } from "@/components/ui/use-toast";
 import { auth } from "@/lib/firebase";
+import { useIsLoggedIn } from "@/hooks/useIsLoggedIn";
+import { useDenyLoggedIn } from "@/hooks/useDenyLoggedIn";
 
 const SignUp = () => {
+  useDenyLoggedIn();
+
+  const navigate = useNavigate();
+
+  const isLoggedIn = useIsLoggedIn();
+
   const { toast } = useToast();
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSignUp = (e: React.FormEvent<HTMLFormElement>) => {
+  if (isLoggedIn) {
+    navigate("/");
+  }
+
+  const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
-    createUserWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
-        // Signed up
-        const user = userCredential.user;
-      })
-      .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        console.log(errorCode, errorMessage);
-        toast({
-          variant: "destructive",
-          title: "Uh oh! Something went wrong.",
-          description: errorMessage,
-        });
-      })
-      .finally(() => {
-        setLoading(false);
+
+    if (email.trim() === "" || password.trim() === "" || name.trim() === "") {
+      toast({
+        variant: "destructive",
+        title: "Please fill in all fields.",
       });
+      setLoading(false);
+      return;
+    }
+
+    try {
+      await createUserWithEmailAndPassword(auth, email, password);
+      if (auth.currentUser) {
+        await updateProfile(auth.currentUser, {
+          displayName: name,
+        });
+
+        toast({
+          variant: "default",
+          title: "Account created successfully.",
+        });
+
+        navigate("/");
+      } else {
+        throw new Error("User not created.");
+      }
+    } catch (error: any) {
+      const errorCode = error.code;
+      const errorMessage = error.message;
+      console.log(errorCode, errorMessage);
+      toast({
+        variant: "destructive",
+        title: "Uh oh! Something went wrong.",
+        description: errorMessage,
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

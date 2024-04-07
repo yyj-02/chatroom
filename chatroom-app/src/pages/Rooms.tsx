@@ -2,9 +2,10 @@ import { useState } from "react";
 import RoomCard from "@/components/room-card";
 import { Button } from "@/components/ui/button";
 import { Room } from "@/model/room";
+import { useOnlyLoggedIn } from "@/hooks/useOnlyLoggedIn";
 
 const Rooms = () => {
-  // Add request signed in
+  useOnlyLoggedIn();
 
   const [rooms, setRooms] = useState<Room[]>([
     {
@@ -42,14 +43,14 @@ const Rooms = () => {
   };
 
   return (
-    <div className="w-full max-w-5xl p-8 mx-auto min-h-full">
+    <div className="mx-auto min-h-full w-full max-w-5xl p-8">
       <div className="flex justify-between">
-        <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl text-center">
+        <h1 className="scroll-m-20 text-center text-4xl font-extrabold tracking-tight lg:text-5xl">
           Rooms
         </h1>
         <Button onClick={createRoom}>+ Create Room</Button>
       </div>
-      <div className="grid grid-cols-1 gap-4 mt-8 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {rooms.map((room) => (
           <RoomCard key={room.id} {...room} />
         ))}

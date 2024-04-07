@@ -7,8 +7,11 @@ import { ArrowLeft } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import MessageInput from "@/components/message-input";
 import MessageList from "@/components/message-list";
+import { useOnlyLoggedIn } from "@/hooks/useOnlyLoggedIn";
 
 const Chatroom = () => {
+  useOnlyLoggedIn();
+
   const { id } = useParams();
   const userId = 1;
 

@@ -1,24 +1,54 @@
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { signOut, onAuthStateChanged } from "firebase/auth";
+import { auth } from "@/lib/firebase";
+import { useToast } from "@/components/ui/use-toast";
+import { useEffect, useState } from "react";
+import { useIsLoggedIn } from "@/hooks/useIsLoggedIn";
 
 const Home = () => {
-  // Check if login
-  const login = false;
-  // Handle logout
-  const logout = () => {
-    console.log("Logout");
+  const { toast } = useToast();
+  const isLoggedIn = useIsLoggedIn();
+  const [name, setName] = useState("");
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      setName(auth.currentUser?.displayName ?? "");
+    } else {
+      setName("");
+    }
+  }, [isLoggedIn]);
+
+  const handleLogout = () => {
+    signOut(auth)
+      .then(() => {
+        toast({
+          variant: "default",
+          title: "Successfully logged out",
+        });
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        console.log(errorCode, errorMessage);
+        toast({
+          variant: "destructive",
+          title: "Uh oh! Something went wrong.",
+          description: errorMessage,
+        });
+      });
   };
 
   return (
-    <div className="w-full max-w-5xl p-8 mx-auto min-h-full flex flex-col items-center justify-center">
-      <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl text-center">
-        Welcome to Singlish Chat 🇸🇬
+    <div className="mx-auto flex min-h-full w-full max-w-5xl flex-col items-center justify-center p-8">
+      <h1 className="scroll-m-20 text-center text-4xl font-extrabold tracking-tight lg:text-5xl">
+        {isLoggedIn ? `Hi, ${name}!` : "Welcome to Singlish Chat 🇸🇬"}
       </h1>
-      <p className="text-sm font-medium leading-none text-center mt-8 text-foreground/50">
+      <p className="mt-8 text-center text-sm font-medium leading-none text-foreground/50">
         Created by: Jet, Justin, Silas, Yong Jie
       </p>
-      {login ? (
-        <div className="mt-8 flex flex-col gap-4 items-stretch justify-center">
+      {isLoggedIn ? (
+        <div className="mt-8 flex flex-col items-stretch justify-center gap-4">
           <Link
             to="/rooms"
             className={buttonVariants({
@@ -27,12 +57,12 @@ const Home = () => {
           >
             Go to Rooms
           </Link>
-          <Button variant="destructive" onClick={logout}>
+          <Button variant="destructive" onClick={handleLogout}>
             Logout
           </Button>
         </div>
       ) : (
-        <div className="mt-8 flex gap-4 items-center justify-center">
+        <div className="mt-8 flex items-center justify-center gap-4">
           <Link
             to="/sign-up"
             className={buttonVariants({
