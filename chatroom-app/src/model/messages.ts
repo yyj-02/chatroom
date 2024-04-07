@@ -1,4 +1,4 @@
-export interface Chat {
+export interface Message {
   id: number;
   originalMessage: string;
   translatedMessage: string;
@@ -9,4 +9,4 @@ export interface Chat {
   };
 }
 
-export type Chats = Chat[];
+export type Messages = Message[];

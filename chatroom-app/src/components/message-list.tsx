@@ -1,9 +1,9 @@
 import { ScrollArea } from "./ui/scroll-area";
-import { Chat } from "@/model/chats";
+import { Message } from "@/model/messages";
 import Message from "./message";
 
 interface MessageListProps {
-  chats: Chat[];
+  chats: Message[];
   userId: number;
   britishMode: boolean;
 }

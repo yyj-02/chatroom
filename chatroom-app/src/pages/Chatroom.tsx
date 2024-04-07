@@ -1,6 +1,6 @@
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Chat, Chats } from "@/model/chats";
+import { Message, Messages } from "@/model/messages";
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
@@ -53,7 +53,7 @@ const Chatroom = () => {
 
   const [britishMode, setBritishMode] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [chats, setChats] = useState<Chats>([
+  const [chats, setChats] = useState<Messages>([
     {
       id: 1,
       originalMessage: "Plz la, don't like that leh.",
@@ -76,7 +76,7 @@ const Chatroom = () => {
     },
   ]);
 
-  const addChat = (chat: Chat) => {
+  const addChat = (chat: Message) => {
     setChats([...chats, chat]);
   };
 

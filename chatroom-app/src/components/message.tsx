@@ -6,10 +6,10 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "./ui/tooltip";
-import { Chat } from "@/model/chats";
+import { Message } from "@/model/messages";
 
 interface MessageProps {
-  chat: Chat;
+  chat: Message;
   britishMode: boolean;
   isUser: boolean;
 }
