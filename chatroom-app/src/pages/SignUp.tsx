@@ -2,28 +2,28 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
-import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  onAuthStateChanged,
+  updateProfile,
+} from "firebase/auth";
 import { useToast } from "@/components/ui/use-toast";
 import { auth } from "@/lib/firebase";
-import { useIsLoggedIn } from "@/hooks/useIsLoggedIn";
-import { useDenyLoggedIn } from "@/hooks/useDenyLoggedIn";
 
 const SignUp = () => {
-  useDenyLoggedIn();
-
   const navigate = useNavigate();
 
-  const isLoggedIn = useIsLoggedIn();
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      navigate("/");
+    }
+  });
 
   const { toast } = useToast();
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-
-  if (isLoggedIn) {
-    navigate("/");
-  }
 
   const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

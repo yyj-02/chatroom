@@ -2,15 +2,22 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Chat, Chats } from "@/model/chats";
 import { useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import MessageInput from "@/components/message-input";
 import MessageList from "@/components/message-list";
-import { useOnlyLoggedIn } from "@/hooks/useOnlyLoggedIn";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "@/lib/firebase";
 
 const Chatroom = () => {
-  useOnlyLoggedIn();
+  const navigate = useNavigate();
+
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      navigate("/");
+    }
+  });
 
   const { id } = useParams();
   const userId = 1;

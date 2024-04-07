@@ -1,23 +1,24 @@
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { signOut } from "firebase/auth";
+import { onAuthStateChanged, signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useToast } from "@/components/ui/use-toast";
-import { useEffect, useState } from "react";
-import { useIsLoggedIn } from "@/hooks/useIsLoggedIn";
+import { useState } from "react";
 
 const Home = () => {
   const { toast } = useToast();
-  const isLoggedIn = useIsLoggedIn();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [name, setName] = useState("");
 
-  useEffect(() => {
-    if (isLoggedIn) {
-      setName(auth.currentUser?.displayName ?? "");
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      setName(user.displayName ?? "");
+      setIsLoggedIn(true);
     } else {
       setName("");
+      setIsLoggedIn(false);
     }
-  }, [isLoggedIn]);
+  });
 
   const handleLogout = () => {
     signOut(auth)

@@ -2,15 +2,18 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { onAuthStateChanged, signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useToast } from "@/components/ui/use-toast";
-import { useDenyLoggedIn } from "@/hooks/useDenyLoggedIn";
 
 const Login = () => {
-  useDenyLoggedIn();
-
   const navigate = useNavigate();
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      navigate("/");
+    }
+  });
 
   const { toast } = useToast();
   const [email, setEmail] = useState("");
@@ -22,6 +25,12 @@ const Login = () => {
     setLoading(true);
     try {
       await signInWithEmailAndPassword(auth, email, password);
+
+      toast({
+        variant: "default",
+        title: "Successfully logged in.",
+      });
+
       navigate("/");
     } catch (error: any) {
       const errorCode = error.code;

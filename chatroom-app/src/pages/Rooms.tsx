@@ -2,10 +2,18 @@ import { useState } from "react";
 import RoomCard from "@/components/room-card";
 import { Button } from "@/components/ui/button";
 import { Room } from "@/model/room";
-import { useOnlyLoggedIn } from "@/hooks/useOnlyLoggedIn";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "@/lib/firebase";
+import { useNavigate } from "react-router-dom";
 
 const Rooms = () => {
-  useOnlyLoggedIn();
+  const navigate = useNavigate();
+
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      navigate("/");
+    }
+  });
 
   const [rooms, setRooms] = useState<Room[]>([
     {
