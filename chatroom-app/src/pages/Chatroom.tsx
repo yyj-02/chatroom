@@ -1,31 +1,40 @@
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { Message, Messages } from "@/model/messages";
-import { useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
-import { buttonVariants } from "@/components/ui/button";
 import MessageInput from "@/components/message-input";
 import MessageList from "@/components/message-list";
-import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "@/lib/firebase";
-import { getRoomName } from "@/lib/rooms";
+import { buttonVariants } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/components/ui/use-toast";
+import { auth } from "@/lib/firebase";
+import { onMessagesChange, addMessage } from "@/lib/messages";
+import { getRoomName } from "@/lib/rooms";
+import { Messages } from "@/model/messages";
+import { onAuthStateChanged } from "firebase/auth";
+import { ArrowLeft } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
 
 const Chatroom = () => {
   const navigate = useNavigate();
-
-  onAuthStateChanged(auth, (user) => {
-    if (!user) {
-      navigate("/");
-    }
-  });
-
   const { toast } = useToast();
-
   const { roomId } = useParams();
-
+  const [userId, setUserId] = useState("");
   const [roomName, setRoomName] = useState("");
+  const [britishMode, setBritishMode] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [messages, setMessages] = useState<Messages>([]);
+
+  useEffect(() => {
+    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        navigate("/");
+      } else {
+        setUserId(user.uid);
+      }
+    });
+
+    return () => unsubscribeAuth();
+  }, []);
+
   useEffect(() => {
     if (roomId === undefined) {
       toast({
@@ -47,58 +56,41 @@ const Chatroom = () => {
         });
         navigate("/rooms");
       });
-  }, []);
 
-  const userId = 1;
+    const unsubscribeMessages = onMessagesChange(setMessages, roomId);
 
-  const [britishMode, setBritishMode] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [chats, setChats] = useState<Messages>([
-    {
-      id: 1,
-      originalMessage: "Plz la, don't like that leh.",
-      translatedMessage: "Please, don't do that.",
-      timestamp: "2021-08-01T00:00:00Z",
-      user: {
-        id: 1,
-        name: "User 1",
-      },
-    },
-    {
-      id: 2,
-      originalMessage: "Ok la bro, no more next time.",
-      translatedMessage: "Okay bro, I won't do it again.",
-      timestamp: "2021-08-01T00:00:01Z",
-      user: {
-        id: 2,
-        name: "User 2",
-      },
-    },
-  ]);
+    return () => unsubscribeMessages();
+  }, [roomId]);
 
-  const addChat = (chat: Message) => {
-    setChats([...chats, chat]);
-  };
-
-  // retrieve chat, redirects to room if chat is not found
-  const sendMessage = (message: string) => {
+  const sendMessage = async (message: string) => {
     setLoading(true);
 
-    if (!message || message.trim() === "") {
+    const isMessageEmpty = !message || message.trim() === "";
+    if (isMessageEmpty) {
       setLoading(false);
       return;
     }
 
-    addChat({
-      id: chats.length + 1,
-      originalMessage: message,
-      translatedMessage: "Translated message",
-      timestamp: new Date().toISOString(),
-      user: {
-        id: userId,
-        name: "User 1",
-      },
-    });
+    if (!userId) {
+      navigate("/");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      await addMessage(
+        message,
+        roomId ?? "",
+        userId,
+        auth.currentUser?.displayName ?? "",
+      );
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Message not sent.",
+        description: error.message,
+      });
+    }
 
     setLoading(false);
   };
@@ -132,7 +124,7 @@ const Chatroom = () => {
       <div className="mx-auto flex w-full max-w-5xl grow flex-col gap-2 px-8 pb-8">
         <div className="w-full grow">
           <MessageList
-            chats={chats}
+            chats={messages}
             userId={userId}
             britishMode={britishMode}
           />

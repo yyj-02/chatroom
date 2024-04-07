@@ -1,10 +1,10 @@
 export interface Message {
-  id: number;
+  id: string;
   originalMessage: string;
   translatedMessage: string;
   timestamp: string;
   user: {
-    id: number;
+    id: string;
     name: string;
   };
 }

@@ -14,7 +14,11 @@ interface MessageProps {
   isUser: boolean;
 }
 
-const Message: React.FC<MessageProps> = ({ chat, britishMode, isUser }) => {
+const MessageDisplay: React.FC<MessageProps> = ({
+  chat,
+  britishMode,
+  isUser,
+}) => {
   const getInitials = (name: string) => {
     return name
       .split(" ")
@@ -78,4 +82,4 @@ const Message: React.FC<MessageProps> = ({ chat, britishMode, isUser }) => {
   );
 };
 
-export default Message;
+export default MessageDisplay;

@@ -1,10 +1,10 @@
 import { ScrollArea } from "./ui/scroll-area";
 import { Message } from "@/model/messages";
-import Message from "./message";
+import MessageDisplay from "./message-display";
 
 interface MessageListProps {
   chats: Message[];
-  userId: number;
+  userId: string;
   britishMode: boolean;
 }
 
@@ -19,7 +19,11 @@ const MessageList: React.FC<MessageListProps> = ({
         const isUser = chat.user.id === userId;
         return (
           <div className="py-4" key={chat.id}>
-            <Message chat={chat} britishMode={britishMode} isUser={isUser} />
+            <MessageDisplay
+              chat={chat}
+              britishMode={britishMode}
+              isUser={isUser}
+            />
           </div>
         );
       })}
