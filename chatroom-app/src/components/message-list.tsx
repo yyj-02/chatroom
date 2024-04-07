@@ -18,13 +18,8 @@ const MessageList: React.FC<MessageListProps> = ({
       {chats.map((chat) => {
         const isUser = chat.user.id === userId;
         return (
-          <div className="py-4">
-            <Message
-              key={chat.id}
-              chat={chat}
-              britishMode={britishMode}
-              isUser={isUser}
-            />
+          <div className="py-4" key={chat.id}>
+            <Message chat={chat} britishMode={britishMode} isUser={isUser} />
           </div>
         );
       })}
