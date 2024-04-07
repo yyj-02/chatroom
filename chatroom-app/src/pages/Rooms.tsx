@@ -70,7 +70,7 @@ const Rooms = () => {
         <div className="hidden flex-shrink flex-grow basis-28 xl:block" />
       </div>
       <div className="mx-auto flex w-full max-w-5xl grow flex-col gap-2 px-8 pb-8">
-        <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {rooms.map((room) => (
             <RoomCard key={room.id} {...room} />
           ))}
