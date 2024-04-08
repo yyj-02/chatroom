@@ -16,6 +16,7 @@ import {
   UnauthorizedError,
 } from "../utils/errors";
 import {getTranslatedMessage} from "../utils/translateMessage";
+import {getAuth} from "firebase-admin/auth";
 
 const addMessageToDatabase = async (
   message: string,
@@ -47,9 +48,12 @@ const addMessageToDatabase = async (
 export const addMessage = onCall(async (req) => {
   try {
     const userId = req.auth?.uid;
-    const userName = req.auth?.token.name || null;
-
     if (!userId) throw new UnauthorizedError("Unauthorized");
+
+    const userRecord = await getAuth().getUser(userId);
+    if (!userRecord) throw new UnauthorizedError("Unauthorized");
+
+    const userName = userRecord.displayName || "";
 
     const {message, roomId} = req.data;
     if (!message || !roomId) throw new BadRequestError("Bad request");

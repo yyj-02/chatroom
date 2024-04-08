@@ -39,21 +39,22 @@ const SignUp = () => {
     }
 
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      if (auth.currentUser) {
-        await updateProfile(auth.currentUser, {
-          displayName: name,
-        });
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password,
+      );
 
-        toast({
-          variant: "default",
-          title: "Account created successfully.",
-        });
+      await updateProfile(userCredential.user, {
+        displayName: name,
+      });
 
-        navigate("/");
-      } else {
-        throw new Error("User not created.");
-      }
+      toast({
+        variant: "default",
+        title: "Account created successfully.",
+      });
+
+      navigate("/");
     } catch (error: any) {
       const errorCode = error.code;
       const errorMessage = error.message;
