@@ -10,13 +10,8 @@ import { db } from "./firebase";
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { Messages } from "@/model/messages";
 
-import { getApp } from "firebase/app";
-import { connectFunctionsEmulator } from "firebase/functions";
-const functions = getFunctions(getApp());
-connectFunctionsEmulator(functions, "127.0.0.1", 5001);
-
 const addMessage = async (message: string, roomId: string) => {
-  // const functions = getFunctions();
+  const functions = getFunctions();
   const addMessageCloudFunction = httpsCallable(functions, "addMessage");
   const messageData = { message, roomId };
   const result = await addMessageCloudFunction({ ...messageData });
