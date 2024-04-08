@@ -7,6 +7,7 @@ import {
   TooltipTrigger,
 } from "./ui/tooltip";
 import { Message } from "@/model/messages";
+import { Timestamp } from "firebase/firestore";
 
 interface MessageProps {
   chat: Message;
@@ -20,6 +21,7 @@ const MessageDisplay: React.FC<MessageProps> = ({
   isUser,
 }) => {
   const getInitials = (name: string) => {
+    if (!name) return "";
     return name
       .split(" ")
       .slice(0, 2)
@@ -28,8 +30,8 @@ const MessageDisplay: React.FC<MessageProps> = ({
       .toUpperCase();
   };
 
-  const formatTimestamp = (timestamp: string) => {
-    const date = new Date(timestamp);
+  const formatTimestamp = (timestamp: Timestamp) => {
+    const date = timestamp.toDate();
     const isToday = new Date().toDateString() === date.toDateString();
 
     return date.toLocaleString("en-US", {
