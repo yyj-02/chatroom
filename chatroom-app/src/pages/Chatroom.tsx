@@ -78,13 +78,9 @@ const Chatroom = () => {
     }
 
     try {
-      await addMessage(
-        message,
-        roomId ?? "",
-        userId,
-        auth.currentUser?.displayName ?? "",
-      );
+      await addMessage(message, roomId ?? "");
     } catch (error: any) {
+      console.log(error);
       toast({
         variant: "destructive",
         title: "Message not sent.",

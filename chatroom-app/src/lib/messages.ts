@@ -1,6 +1,4 @@
 import {
-  Timestamp,
-  addDoc,
   collection,
   doc,
   query,
@@ -9,26 +7,21 @@ import {
   onSnapshot,
 } from "firebase/firestore";
 import { db } from "./firebase";
+import { getFunctions, httpsCallable } from "firebase/functions";
 import { Messages } from "@/model/messages";
 
-const addMessage = async (
-  message: string,
-  roomId: string,
-  userId: string,
-  userName: string,
-) => {
-  const messageRef = await addDoc(collection(db, "messages"), {
-    originalMessage: message,
-    translatedMessage: `Translated message: ${message}`,
-    user: {
-      id: userId,
-      name: userName,
-    },
-    timestamp: Timestamp.now(),
-    room: doc(db, "rooms", roomId),
-  });
+import { getApp } from "firebase/app";
+import { connectFunctionsEmulator } from "firebase/functions";
+const functions = getFunctions(getApp());
+connectFunctionsEmulator(functions, "127.0.0.1", 5001);
 
-  return messageRef.id;
+const addMessage = async (message: string, roomId: string) => {
+  // const functions = getFunctions();
+  const addMessageCloudFunction = httpsCallable(functions, "addMessage");
+  const messageData = { message, roomId };
+  const result = await addMessageCloudFunction({ ...messageData });
+  const resultData: { id?: string } = result.data as { id?: string };
+  return resultData?.id;
 };
 
 const onMessagesChange = (

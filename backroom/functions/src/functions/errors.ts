@@ -1,24 +1,26 @@
+import {FunctionsErrorCode} from "firebase-functions/v1/https";
+
 class UnauthorizedError extends Error {
-  code: number;
+  code: FunctionsErrorCode;
   constructor(message: string) {
     super(message);
     this.name = "UnauthorizedError";
-    this.code = 401;
+    this.code = "permission-denied";
   }
 }
 
 class InternalServerError extends Error {
-  code: number;
+  code: FunctionsErrorCode;
   constructor(message: string) {
     super(message);
     this.name = "InternalServerError";
-    this.code = 500;
+    this.code = "internal";
   }
 }
 
 class TokenVerificationError extends Error {
   originalError: any;
-  code: number;
+  code: FunctionsErrorCode;
   constructor(originalError: any) {
     super("Error verifying ID token");
     this.name = "TokenVerificationError";
@@ -26,19 +28,28 @@ class TokenVerificationError extends Error {
     this.code = ["auth/id-token-revoked", "auth/user-disabled"].includes(
       originalError.code
     ) ?
-      401 :
-      500;
+      "permission-denied" :
+      "internal";
   }
 }
 
 class DatabaseError extends Error {
   originalError: any;
-  code: number;
+  code: FunctionsErrorCode;
   constructor(originalError: any) {
     super("Error adding message to database");
     this.name = "DatabaseError";
     this.originalError = originalError;
-    this.code = 500;
+    this.code = "internal";
+  }
+}
+
+class BadRequestError extends Error {
+  code: FunctionsErrorCode;
+  constructor(message: string) {
+    super(message);
+    this.name = "BadRequestError";
+    this.code = "invalid-argument";
   }
 }
 
@@ -47,4 +58,5 @@ export {
   InternalServerError,
   TokenVerificationError,
   DatabaseError,
+  BadRequestError,
 };

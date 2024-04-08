@@ -1,24 +1,19 @@
 // The Cloud Functions for Firebase SDK to create Cloud Functions and triggers.
 import {logger} from "firebase-functions";
-import {onRequest} from "firebase-functions/v2/https";
+import {
+  FunctionsErrorCode,
+  HttpsError,
+  onCall,
+} from "firebase-functions/v2/https";
 
 // The Firebase Admin SDK to access Firestore.
 import {Timestamp, getFirestore} from "firebase-admin/firestore";
-import {getAuth} from "firebase-admin/auth";
 import {
+  BadRequestError,
   DatabaseError,
   TokenVerificationError,
   UnauthorizedError,
 } from "./errors";
-
-async function verifyIdToken(idToken: string) {
-  try {
-    const decodedToken = await getAuth().verifyIdToken(idToken);
-    return {uid: decodedToken.uid, name: decodedToken.name};
-  } catch (error: any) {
-    throw new TokenVerificationError(error);
-  }
-}
 
 async function addMessageToDatabase(
   message: string,
@@ -46,36 +41,35 @@ async function addMessageToDatabase(
   }
 }
 
-export const addMessage = onRequest(async (req, res) => {
+export const addMessage = onCall((req) => {
   try {
-    const idToken = req.headers.authorization;
-    if (!idToken) throw new UnauthorizedError("Unauthorized");
+    const userId = req.auth?.uid;
+    const userName = req.auth?.token.name || null;
 
-    const {uid: userId, name: userName} = await verifyIdToken(idToken);
-    const {message, roomId} = req.body;
-    const messageId = await addMessageToDatabase(
-      message,
-      roomId,
-      userId,
-      userName
-    );
+    if (!userId) throw new UnauthorizedError("Unauthorized");
 
-    res.json({id: messageId});
+    const {message, roomId} = req.data;
+    if (!message || !roomId) throw new BadRequestError("Bad request");
+
+    const messageId = addMessageToDatabase(message, roomId, userId, userName);
+
+    return {id: messageId};
   } catch (error: any) {
     logger.error(error.name, error);
 
-    let statusCode = 500;
-    let message = "Internal server error";
+    let statusCode: FunctionsErrorCode = "internal";
+    let message = "Internal error";
 
     if (
       error instanceof UnauthorizedError ||
       error instanceof TokenVerificationError ||
-      error instanceof DatabaseError
+      error instanceof DatabaseError ||
+      error instanceof BadRequestError
     ) {
       statusCode = error.code;
       message = error.message;
     }
 
-    res.status(statusCode).send(message);
+    throw new HttpsError(statusCode, message);
   }
 });
