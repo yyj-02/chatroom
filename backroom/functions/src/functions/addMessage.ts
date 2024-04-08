@@ -1,5 +1,5 @@
 // The Cloud Functions for Firebase SDK to create Cloud Functions and triggers.
-import {logger} from "firebase-functions";
+import {logger} from "firebase-functions/v2";
 import {
   FunctionsErrorCode,
   HttpsError,
@@ -12,19 +12,22 @@ import {
   BadRequestError,
   DatabaseError,
   TokenVerificationError,
+  TranslationError,
   UnauthorizedError,
-} from "./errors";
+} from "../utils/errors";
+import {getTranslatedMessage} from "../utils/translateMessage";
 
-async function addMessageToDatabase(
+const addMessageToDatabase = async (
   message: string,
   roomId: string,
   userId: string,
   userName: string
-): Promise<string> {
+): Promise<string> => {
   try {
     const db = getFirestore();
     const roomRef = db.collection("rooms").doc(roomId);
-    const translatedMessage = `Translated message: ${message}`;
+    const translatedMessage = await getTranslatedMessage(message);
+    logger.log("Translated message: ", translatedMessage);
 
     const newMessageData = {
       originalMessage: message,
@@ -39,9 +42,9 @@ async function addMessageToDatabase(
   } catch (error: any) {
     throw new DatabaseError(error);
   }
-}
+};
 
-export const addMessage = onCall((req) => {
+export const addMessage = onCall(async (req) => {
   try {
     const userId = req.auth?.uid;
     const userName = req.auth?.token.name || null;
@@ -51,7 +54,12 @@ export const addMessage = onCall((req) => {
     const {message, roomId} = req.data;
     if (!message || !roomId) throw new BadRequestError("Bad request");
 
-    const messageId = addMessageToDatabase(message, roomId, userId, userName);
+    const messageId = await addMessageToDatabase(
+      message,
+      roomId,
+      userId,
+      userName
+    );
 
     return {id: messageId};
   } catch (error: any) {
@@ -64,7 +72,8 @@ export const addMessage = onCall((req) => {
       error instanceof UnauthorizedError ||
       error instanceof TokenVerificationError ||
       error instanceof DatabaseError ||
-      error instanceof BadRequestError
+      error instanceof BadRequestError ||
+      error instanceof TranslationError
     ) {
       statusCode = error.code;
       message = error.message;

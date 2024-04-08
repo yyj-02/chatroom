@@ -53,10 +53,20 @@ class BadRequestError extends Error {
   }
 }
 
+class TranslationError extends Error {
+  code: FunctionsErrorCode;
+  constructor(message: string) {
+    super(message);
+    this.name = "TranslationError";
+    this.code = "internal";
+  }
+}
+
 export {
   UnauthorizedError,
   InternalServerError,
   TokenVerificationError,
   DatabaseError,
   BadRequestError,
+  TranslationError,
 };
