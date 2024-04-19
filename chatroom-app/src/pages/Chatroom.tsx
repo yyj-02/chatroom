@@ -83,8 +83,9 @@ const Chatroom = () => {
       console.log(error);
       toast({
         variant: "destructive",
-        title: "Message not sent.",
-        description: error.message,
+        title: "Try again in 15 seconds.",
+        description:
+          "Please try sending your message again in 15 seconds as our Hugging Face api is warming up.",
       });
     }
 
